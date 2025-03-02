@@ -1,19 +1,26 @@
-# Start with a minimal Go image
-FROM golang:1.21 as builder
+# Build stage
+FROM golang:1.24 AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy and build the custom scheduler
+# Copy go.mod and go.sum first for better caching
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the code
 COPY . .
-RUN go mod tidy && go build -o custom-scheduler main.go
+
+# Build the binary with CGO disabled (static binary)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o custom-scheduler main.go
 
 # Use a minimal base image for execution
-FROM alpine:latest
+FROM scratch 
+
+# Set working directory
 WORKDIR /root/
 
-# Copy the compiled binary from builder
+# Copy the compiled binary from builder stage
 COPY --from=builder /app/custom-scheduler .
 
 # Run the scheduler
-CMD ["./custom-scheduler"]
+CMD ["/root/custom-scheduler"]
