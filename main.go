@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/angao/scheduler-framework-sample/pkg/plugins/sample"
 	"k8s.io/component-base/logs"
@@ -13,7 +11,6 @@ import (
 )
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
 
 	logs.InitLogs()
 	defer logs.FlushLogs()
