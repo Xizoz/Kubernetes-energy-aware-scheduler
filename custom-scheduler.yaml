@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: energy-scheduler
+  namespace: kube-system
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: energy-scheduler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: energy-scheduler
+  template:
+    metadata:
+      labels:
+        app: energy-scheduler
+    spec:
+      serviceAccountName: energy-scheduler
+      containers:
+        - name: energy-scheduler
+          image: energy-scheduler:latest
+          imagePullPolicy: Never
+          command:
+            - "/energy-scheduler"
+          args:
+            - "--v=4"
+          securityContext:
+            allowPrivilegeEscalation: false
+      nodeSelector:
+        kubernetes.io/role: control-plane
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
+
