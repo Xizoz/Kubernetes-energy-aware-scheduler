@@ -1,4 +1,4 @@
-module custom-scheduler
+module energy-scheduler
 
 go 1.24.0
 
