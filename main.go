@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"flag"
 	"math/rand"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/kubernetes/cmd/kube-scheduler/app"
+
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
@@ -21,13 +22,13 @@ type EnergyEfficientPlugin struct {
 var _ framework.ScorePlugin = &EnergyEfficientPlugin{}
 
 func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
+	klog.Info("Plugin runs!")
 	return &EnergyEfficientPlugin{handle: h}, nil
 }
 
 func (p *EnergyEfficientPlugin) Name() string {
 	return PluginName
 }
-
 func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
 	// Simulate energy efficiency score (lower energy usage is better)
 	energyUsage := rand.Int63n(100) // Fake energy metric (0-99)
@@ -50,10 +51,19 @@ func loadFakePods() {
 }
 
 func main() {
-	klog.InitFlags(nil)
-	flag.Set("v", "4")
 	klog.Info("Starting Energy Efficient Scheduler Plugin...")
 	go loadFakePods()
 	defer klog.Flush()
+	command := app.NewSchedulerCommand(
+		app.WithPlugin(PluginName, New),
+	)
+
+	klog.Info("Scheduler command created, executing...")
+
+	// Run the scheduler
+	if err := command.Execute(); err != nil {
+		klog.ErrorS(err, "Failed to run scheduler")
+	}
+
 	select {} // Keep running
 }

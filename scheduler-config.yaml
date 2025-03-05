@@ -1,10 +1,8 @@
-apiVersion: kubescheduler.config.k8s.io/v1
+apiVersion: kubescheduler.config.k8s.io/v1beta1
 kind: KubeSchedulerConfiguration
 profiles:
-  - schedulerName: energy-scheduler
+  - schedulerName: energy-efficient-scheduler
     plugins:
       score:
         enabled:
           - name: EnergyEfficientScheduler
-        disabled:
-          - name: "*"
