@@ -3,6 +3,6 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: energy-aware-k8-cluster
 nodes:
   - role: control-plane
-    image: kindest/node:v1.27.3
+    image: kindest/node:v1.32.2
   - role: worker
-    image: kindest/node:v1.27.3
+    image: kindest/node:v1.32.2

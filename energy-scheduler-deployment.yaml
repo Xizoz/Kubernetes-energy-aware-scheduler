@@ -18,7 +18,15 @@ spec:
         - name: energy-scheduler
           image: energy-scheduler:latest
           imagePullPolicy: Never
-          command: ["/root/energy-scheduler"]
+          command: ["/root/energy-scheduler", "--config=/etc/kubernetes/scheduler-config.yaml"]
+          volumeMounts:
+            - name: scheduler-config-volume
+              mountPath: /etc/kubernetes
+              readOnly: true
+      volumes:
+        - name: scheduler-config-volume
+          configMap:
+            name: energy-scheduler-config
       nodeSelector:
         node-role.kubernetes.io/control-plane: ""
       tolerations:
