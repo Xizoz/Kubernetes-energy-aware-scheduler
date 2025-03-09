@@ -5,6 +5,6 @@ metadata:
 spec:
   schedulerName: energy-scheduler
   containers:
-    - name: energy-scheduler
+    - name: busybox
       image: busybox
       command: ["sleep", "3600"]

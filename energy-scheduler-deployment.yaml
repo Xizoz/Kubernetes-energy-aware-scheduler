@@ -2,7 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: energy-scheduler
-  namespace: kube-system
+  labels:
+    app: energy-scheduler
 spec:
   replicas: 1
   selector:
@@ -13,23 +14,20 @@ spec:
       labels:
         app: energy-scheduler
     spec:
-      serviceAccountName: energy-scheduler
       containers:
         - name: energy-scheduler
           image: energy-scheduler:latest
           imagePullPolicy: Never
-          command: ["/root/energy-scheduler", "--config=/etc/kubernetes/scheduler-config.yaml"]
+          command: ["sudo ./energy-scheduler"]
+          args:
+            - "--config=/etc/kubernetes/scheduler-config.yaml"
+            - "--kubeconfig=$HOME/.kube/config"
+            - "--master=https://localhost:6443"
+            - "-v=4"
           volumeMounts:
-            - name: scheduler-config-volume
+            - name: config-volume
               mountPath: /etc/kubernetes
-              readOnly: true
       volumes:
-        - name: scheduler-config-volume
+        - name: config-volume
           configMap:
-            name: energy-scheduler-config
-      nodeSelector:
-        node-role.kubernetes.io/control-plane: ""
-      tolerations:
-        - key: "node-role.kubernetes.io/control-plane"
-          operator: "Exists"
-          effect: "NoSchedule"
+            name: scheduler-config
