@@ -5,11 +5,12 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/grffio/k8s-sts-scheduler/pkg/statefulset"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/kubernetes/cmd/kube-scheduler/app"
-
+	apiruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
+	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
@@ -21,17 +22,17 @@ type EnergyEfficientPlugin struct {
 
 var _ framework.ScorePlugin = &EnergyEfficientPlugin{}
 
-func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
-	klog.Info("Plugin runs!")
-	return &EnergyEfficientPlugin{handle: h}, nil
+func Test123(handle framework.Handle, _ apiruntime.Object, _ *apiruntime.Unknown) (framework.Plugin, error) {
+	klog.Info("Initializing Energy Efficient Plugin...")
+	return &EnergyEfficientPlugin{handle: handle}, nil
 }
 
 func (p *EnergyEfficientPlugin) Name() string {
 	return PluginName
 }
+
 func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
-	// Simulate energy efficiency score (lower energy usage is better)
-	energyUsage := rand.Int63n(100) // Fake energy metric (0-99)
+	energyUsage := rand.Int63n(100) // Simulate energy efficiency (lower is better)
 	score := 100 - energyUsage      // Higher score is better
 	klog.Infof("Scoring node %s with energy usage %d, final score: %d", nodeName, energyUsage, score)
 	return score, framework.NewStatus(framework.Success)
@@ -42,7 +43,7 @@ func (p *EnergyEfficientPlugin) ScoreExtensions() framework.ScoreExtensions {
 }
 
 func loadFakePods() {
-	klog.Info("Loading fake pods for simulation2...")
+	klog.Info("Loading fake pods for simulation...")
 	fakePods := []string{"pod-1", "pod-2", "pod-3"}
 	for _, pod := range fakePods {
 		time.Sleep(1 * time.Second)
@@ -50,12 +51,24 @@ func loadFakePods() {
 	}
 }
 
+type config struct {
+	Labels statefulset.Labels `envconfig:"labels"`
+}
+
 func main() {
 	klog.Info("Starting Energy Efficient Scheduler Plugin...")
 	go loadFakePods()
 	defer klog.Flush()
+	var cnf config
+
 	command := app.NewSchedulerCommand(
-		app.WithPlugin(PluginName, New),
+		app.WithPlugin(statefulset.Name, func(
+			_ context.Context,
+			_ runtime.Object,
+			_ framework.Handle,
+		) (framework.Plugin, error) {
+			return statefulset.NewScheduler(cnf.Labels)
+		}),
 	)
 
 	klog.Info("Scheduler command created, executing...")
