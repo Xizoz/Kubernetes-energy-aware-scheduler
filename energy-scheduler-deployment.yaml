@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: energy-scheduler
-          image: lvhelt/energy-scheduler:v1.0
+          image: lvhelt/energy-scheduler:v1.3
           imagePullPolicy: Always
           command: ["./energy-scheduler"]
           args:

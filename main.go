@@ -8,7 +8,6 @@ import (
 	"github.com/grffio/k8s-sts-scheduler/pkg/statefulset"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	apiruntime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
@@ -22,7 +21,7 @@ type EnergyEfficientPlugin struct {
 
 var _ framework.ScorePlugin = &EnergyEfficientPlugin{}
 
-func Test123(handle framework.Handle, _ apiruntime.Object, _ *apiruntime.Unknown) (framework.Plugin, error) {
+func New(ctx context.Context, obj runtime.Object, handle framework.Handle) (framework.Plugin, error) {
 	klog.Info("Initializing Energy Efficient Plugin...")
 	return &EnergyEfficientPlugin{handle: handle}, nil
 }
@@ -59,15 +58,15 @@ func main() {
 	klog.Info("Starting Energy Efficient Scheduler Plugin...")
 	go loadFakePods()
 	defer klog.Flush()
-	var cnf config
+	// var cnf config
 
 	command := app.NewSchedulerCommand(
-		app.WithPlugin(statefulset.Name, func(
-			_ context.Context,
-			_ runtime.Object,
-			_ framework.Handle,
+		app.WithPlugin(PluginName, func(
+			ctx context.Context,
+			obj runtime.Object,
+			handle framework.Handle,
 		) (framework.Plugin, error) {
-			return statefulset.NewScheduler(cnf.Labels)
+			return &EnergyEfficientPlugin{handle: handle}, nil
 		}),
 	)
 
