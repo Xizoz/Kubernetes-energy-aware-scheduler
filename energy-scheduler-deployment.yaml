@@ -16,17 +16,22 @@ spec:
     spec:
       containers:
         - name: energy-scheduler
-          image: lvhelt/energy-scheduler:v1.3
+          image: lvhelt/energy-scheduler:v1.5
           imagePullPolicy: Always
           command: ["./energy-scheduler"]
           args:
             - "--config=/etc/kubernetes/scheduler-config.yaml"
-            - "--kubeconfig=$HOME/.kube/config"
+            - "--authentication-kubeconfig=/etc/kubernetes/scheduler.conf"
+            - "--authorization-kubeconfig=/etc/kubernetes/scheduler.conf"
             - "--master=https://localhost:6443"
-            - "-v=4"
+            - "-v=9"
+          env:
+            - name: KUBECONFIG
+              value: "/etc/kubernetes/scheduler.conf"
           volumeMounts:
             - name: config-volume
               mountPath: /etc/kubernetes
+              readOnly: true
       volumes:
         - name: config-volume
           configMap:

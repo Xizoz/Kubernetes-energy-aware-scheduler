@@ -12,7 +12,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o energy-scheduler main.go
 
 # Final minimal execution image
-FROM scratch
+FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/energy-scheduler .
 CMD ["/root/energy-scheduler"]

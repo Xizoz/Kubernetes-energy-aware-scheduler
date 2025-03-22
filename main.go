@@ -61,13 +61,7 @@ func main() {
 	// var cnf config
 
 	command := app.NewSchedulerCommand(
-		app.WithPlugin(PluginName, func(
-			ctx context.Context,
-			obj runtime.Object,
-			handle framework.Handle,
-		) (framework.Plugin, error) {
-			return &EnergyEfficientPlugin{handle: handle}, nil
-		}),
+		app.WithPlugin(PluginName, New),
 	)
 
 	klog.Info("Scheduler command created, executing...")
