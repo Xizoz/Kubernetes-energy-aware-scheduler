@@ -1,13 +1,24 @@
 apiVersion: kubescheduler.config.k8s.io/v1
 kind: KubeSchedulerConfiguration
+percentageOfNodesToScore: 100
+leaderElection:
+  leaderElect: true
+  leaseDuration: 15s
+  renewDeadline: 10s
+  resourceLock: leases
+  resourceName: energy-scheduler-leader  # Use a unique lease name
+  resourceNamespace: kube-system
+  retryPeriod: 2s
 profiles:
-  - schedulerName: energy-aware-scheduler
+  - schedulerName: energy-scheduler
     plugins:
+      preFilter:
+        enabled:
+          - name: EnergyEfficientScheduler
+      filter:
+        enabled:
+          - name: EnergyEfficientScheduler
       score:
         enabled:
           - name: EnergyEfficientScheduler
-        disabled:
-          - name: "*"
-    pluginConfig:
-      - name: EnergyEfficientScheduler
-        args: {}
+            weight: 10
