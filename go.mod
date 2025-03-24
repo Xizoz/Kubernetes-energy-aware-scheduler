@@ -17,7 +17,6 @@ replace (
 )
 
 require (
-	github.com/grffio/k8s-sts-scheduler v0.2.0
 	k8s.io/api v0.31.1
 	k8s.io/apimachinery v0.31.1
 	k8s.io/klog/v2 v2.130.1
