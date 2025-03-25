@@ -16,7 +16,7 @@ spec:
       serviceAccountName: energy-scheduler
       containers:
         - name: energy-scheduler
-          image: lvhelt/energy-scheduler:v1.5
+          image: lvhelt/energy-scheduler:v1.7
           imagePullPolicy: Always
           command: ["./energy-scheduler"]
           args:
