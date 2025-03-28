@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kepler
+  namespace: kepler
+spec:
+  selector:
+    matchLabels:
+      app: kepler
+  template:
+    metadata:
+      labels:
+        app: kepler
+    spec:
+      containers:
+        - name: kepler
+          image: ghcr.io/kepler-project/kepler:v0.5.0 # Use the latest stable Kepler image
+          ports:
+            - containerPort: 9090 # Port for metrics scraping
+          volumeMounts:
+            - mountPath: /var/run/docker.sock
+              name: docker-socket
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
